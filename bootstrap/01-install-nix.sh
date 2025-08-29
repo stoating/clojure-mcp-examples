@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Default value
 OS_TYPE="Unknown"
 
 detect_os() {
@@ -24,16 +25,16 @@ main() {
     echo "Detected OS: $OS_TYPE"
 
     if [[ "$OS_TYPE" == "Linux" ]]; then
-        echo "Installing Nix for Linux..."
-        sh <(curl -L https://nixos.org/nix/install) --daemon
+        echo "Installing Nix for Linux (daemon mode)..."
+        curl -L https://nixos.org/nix/install | sudo sh -s -- --daemon
 
     elif [[ "$OS_TYPE" == "macOS" ]]; then
         echo "Installing Nix for macOS..."
-        curl -L https://github.com/NixOS/experimental-nix-installer/releases/download/0.27.0/nix-installer.sh | sh -s -- install
+        curl -L https://github.com/NixOS/experimental-nix-installer/releases/download/0.27.0/nix-installer.sh | sudo sh -s -- install
 
     elif [[ "$OS_TYPE" == "WSL" ]]; then
-        echo "Installing Nix for WSL..."
-        sh <(curl -L https://nixos.org/nix/install) --no-daemon
+        echo "Installing Nix for WSL (no-daemon)..."
+        curl -L https://nixos.org/nix/install | sudo sh -s -- --no-daemon
 
     else
         echo "Unsupported or unknown OS"
