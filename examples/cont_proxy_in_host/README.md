@@ -24,7 +24,7 @@ This setup provides a containerized Clojure development environment where:
 To build the container image, run the following command from the project root directory:
 
 ```bash
-podman build -t clojure-mcp-proxy-local devenv/container/
+podman build -t clojure-mcp-proxy-in-host-image devenv/container/
 ```
 
 This will:
@@ -44,7 +44,7 @@ This script will:
 
 - Mount the project directory to `/usr/app/` inside the container
 - Mount your local Maven repository (`~/.m2`) to `/root/.m2` for dependency caching
-- Start the container with name `clojure-mcp-proxy-local`
+- Start the container with name `clojure-mcp-proxy-in-host`
 - Execute the entrypoint script that sets up the development environment
 
 ## What Happens When You Run
@@ -76,7 +76,7 @@ To connect Claude Desktop to your development environment, configure the MCP ser
       "command": "bash",
       "args": [
         "-lc",
-        "/home/<user>/.local/bin/mcp-proxy --host=127.0.0.1 --port=7081 -- podman exec -i -w /usr/app clojure-mcp-proxy-local clojure -X:mcp >/tmp/mcp-sse.log 2>&1 & for i in {1..50}; do curl -fsS http://127.0.0.1:7081/status >/dev/null && break || sleep 1; done; exec /home/<user>/.local/bin/mcp-proxy http://127.0.0.1:7081/sse"
+        "/home/<user>/.local/bin/mcp-proxy --host=127.0.0.1 --port=7081 -- podman exec -i -w /usr/app clojure-mcp-proxy-in-host clojure -X:mcp >/tmp/mcp-sse.log 2>&1 & for i in {1..50}; do curl -fsS http://127.0.0.1:7081/status >/dev/null && break || sleep 1; done; exec /home/<user>/.local/bin/mcp-proxy http://127.0.0.1:7081/sse"
       ]
     }
   }
@@ -93,7 +93,7 @@ Or with Windows WSL:
       "args": [
         "bash",
         "-lc",
-        "/home/<user>/.local/bin/mcp-proxy --host=127.0.0.1 --port=7081 -- podman exec -i -w /usr/app clojure-mcp-proxy-local clojure -X:mcp >/tmp/mcp-sse.log 2>&1 & for i in {1..50}; do curl -fsS http://127.0.0.1:7081/status >/dev/null && break || sleep 1; done; exec /home/<user>/.local/bin/mcp-proxy http://127.0.0.1:7081/sse"
+        "/home/<user>/.local/bin/mcp-proxy --host=127.0.0.1 --port=7081 -- podman exec -i -w /usr/app clojure-mcp-proxy-in-host clojure -X:mcp >/tmp/mcp-sse.log 2>&1 & for i in {1..50}; do curl -fsS http://127.0.0.1:7081/status >/dev/null && break || sleep 1; done; exec /home/<user>/.local/bin/mcp-proxy http://127.0.0.1:7081/sse"
       ]
     }
   }
@@ -142,7 +142,7 @@ Or with Windows WSL:
 
 ### Prerequisites for Claude Desktop Integration
 
-1. **Container must be running**: `clojure-mcp-proxy-local` container should be active
+1. **Container must be running**: `clojure-mcp-proxy-in-host` container should be active
 2. **uv package manager** must be installed locally
 3. **mcp-proxy** must be installed: `uv tool install mcp-proxy`
 4. For **Windows**: WSL2 must be installed and configured
@@ -159,7 +159,7 @@ The `claude_desktop_config.json` file should be placed in Claude Desktop's confi
 
 Once configured and with the development environment running:
 
-1. Ensure the container `clojure-mcp-proxy-local` is running
+1. Ensure the container `clojure-mcp-proxy-in-host` is running
 2. Restart Claude Desktop
 3. The MCP server should appear in Claude's available tools
 4. You can interact with the Clojure REPL through Claude's interface
@@ -168,14 +168,14 @@ Once configured and with the development environment running:
 
 #### MCP Server Not Appearing
 
-- Verify the container `clojure-mcp-proxy-local` is running: `podman ps`
+- Verify the container `clojure-mcp-proxy-in-host` is running: `podman ps`
 - Check that `mcp-proxy` is installed and accessible at the specified path
 - Restart Claude Desktop after configuration changes
 - For Windows: Stop Claude Desktop from Task Manager if needed
 
 #### Connection Errors
 
-- Test container communication: `podman exec -it clojure-mcp-proxy-local clojure -X:mcp`
+- Test container communication: `podman exec -it clojure-mcp-proxy-in-host clojure -X:mcp`
 - Verify the SSE proxy starts correctly by running the command manually
 - Check proxy logs: `/.logs/mcp-sse.out` or `/tmp/mcp-sse.log` if running the one-liner config in Claude Desktop
 

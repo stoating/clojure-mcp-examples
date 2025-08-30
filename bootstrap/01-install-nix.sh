@@ -40,6 +40,11 @@ main() {
         echo "Unsupported or unknown OS"
         exit 1
     fi
+
+    echo ""
+    echo "Nix installation complete!"
+    echo "Please close this terminal and open a new one before proceeding with the next step."
+    echo ""
 }
 
 main "$@"

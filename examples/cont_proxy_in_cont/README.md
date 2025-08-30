@@ -14,7 +14,7 @@ This directory contains the containerized development environment for the Clojur
 To build the container image, run the following command from the project root directory:
 
 ```bash
-podman build -t clojure-mcp-proxy-in-container-image devenv/container/
+podman build -t clojure-mcp-proxy-in-cont-image devenv/container/
 ```
 
 This will:
@@ -69,7 +69,7 @@ Development logs are stored in the `.logs` directory:
 To stop the running container:
 
 ```bash
-podman stop clojure-repl
+podman stop clojure-mcp-proxy-in-cont
 ```
 
 Or simply press `Ctrl+C` if running interactively.
@@ -128,7 +128,7 @@ Non-Windows
 ```json
 {
     "mcpServers": {
-        "clojure-repl": {
+        "clojure-mcp-proxy-in-cont": {
             "command": "bash",
             "args": [
                 "-c",
@@ -144,7 +144,7 @@ Windows via WSL
 ```json
 {
     "mcpServers": {
-        "clojure-repl": {
+        "clojure-mcp-proxy-in-cont": {
             "command": "wsl.exe",
             "args": [
                 "bash",
@@ -158,7 +158,7 @@ Windows via WSL
 
 ### Configuration Details
 
-- **Server Name**: `clojure-repl` - This is the identifier for your MCP server
+- **Server Name**: `clojure-mcp-proxy-in-cont` - This is the identifier for your MCP server
 - **Command**: `wsl.exe` - Uses Windows Subsystem for Linux to execute the proxy command
 - **Args**: Runs the `mcp-proxy` tool that connects to the SSE endpoint at `http://localhost:7080/sse`
 - **Path**: `/home/stoating/.local/bin/mcp-proxy` - The location where `uv` installs the mcp-proxy tool
