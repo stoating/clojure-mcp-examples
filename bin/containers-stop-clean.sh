@@ -36,9 +36,9 @@ echo "Done stopping containers."
 kill_port() {
   local port=$1
   echo "Checking for process on port $port..."
-  
+
   local pid=""
-  
+
   # Method 1: Try lsof
   if command -v lsof >/dev/null 2>&1; then
     pid=$(lsof -ti tcp:$port 2>/dev/null || true)
@@ -48,7 +48,7 @@ kill_port() {
       return
     fi
   fi
-  
+
   # Method 2: Try fuser
   if command -v fuser >/dev/null 2>&1; then
     pid=$(fuser ${port}/tcp 2>/dev/null | tr -d ' ' || true)
@@ -58,7 +58,7 @@ kill_port() {
       return
     fi
   fi
-  
+
   # Method 3: Try ss (more common on modern Linux)
   if command -v ss >/dev/null 2>&1; then
     # Extract PID from ss output
@@ -69,7 +69,7 @@ kill_port() {
       return
     fi
   fi
-  
+
   # Method 4: Try netstat (cross-platform but needs parsing)
   if command -v netstat >/dev/null 2>&1; then
     # Linux with -p flag (requires sudo for PID)
@@ -82,7 +82,7 @@ kill_port() {
       fi
     fi
   fi
-  
+
   # If we get here, couldn't find process with any method
   echo "  No process found on port $port (or unable to detect)"
 }
