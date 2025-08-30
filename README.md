@@ -60,7 +60,7 @@ Based on practical experience, running the SSE proxy inside the container (Patte
    devenv shell
    ```
 
-6. **Generate MCP bridge scripts:**
+6. **Generate MCP bridge script (for container-in-host):**
 
    ```bash
    bridge
