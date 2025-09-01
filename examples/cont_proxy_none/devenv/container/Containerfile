@@ -1,5 +1,0 @@
-# Use the official Clojure tools-deps image
-FROM docker.io/library/clojure:temurin-21-tools-deps
-
-# Setup an appropriate workdir inside the container.
-WORKDIR /usr/app
