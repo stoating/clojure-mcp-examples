@@ -15,7 +15,7 @@ PODMAN="$(command -v podman)"
 BASH_BIN="$(command -v bash)"
 
 # Hardcode bridge path relative to project root
-BRIDGE_PATH="$(pwd)/examples/cont_proxy_in_host/gen/claude_desktop/clojure-mcp-bridge.sh"
+BRIDGE_PATH="$(pwd)/patterns/host-proxy/gen/claude_desktop/clojure-mcp-bridge.sh"
 
 # Define JSON snippets for each server
 server_in_cont=$(cat <<JSON

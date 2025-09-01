@@ -1,25 +1,25 @@
-# Clojure MCP Connection Examples
+# Clojure MCP Connection Patterns
 
-A comprehensive demonstration of different ways to connect your LLM (especially Claude Desktop) with Clojure codebases using the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This project showcases multiple architectural patterns for integrating Claude Desktop with Clojure development environments.
+A comprehensive demonstration of different architectural patterns for connecting your LLM (especially Claude Desktop) with Clojure codebases using the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This project showcases multiple patterns for integrating Claude Desktop with Clojure development environments.
 
 ## 🎯 Project Overview
 
 This repository demonstrates **four different connection patterns** for integrating Claude Desktop with Clojure development environments:
 
-1. **Container + Proxy None** (`cont_proxy_none`) - Direct container connection
-2. **Container + Proxy In Container** (`cont_proxy_in_cont`) - SSE proxy inside container
-3. **Container + Proxy In Host** (`cont_proxy_in_host`) - SSE proxy on host system
-4. **Virtual Machine + Proxy In VM** (`vm_proxy_in_vm`) - VM-based setup similar to SSE proxy inside container
+1. **Direct Connection** (`patterns/direct`) - Direct container connection without proxy
+2. **Container Proxy** (`patterns/container-proxy`) - SSE proxy inside container
+3. **Host Proxy** (`patterns/host-proxy`) - SSE proxy on host system
+4. **VM Proxy** (`patterns/vm-proxy`) - VM-based setup with proxy inside VM
 
-Each example provides a complete, reproducible development environment using containers and the powerful [clojure-mcp](https://github.com/bhauman/clojure-mcp) library for seamless REPL integration.
+Each pattern provides a complete, reproducible development environment using containers and the powerful [clojure-mcp](https://github.com/bhauman/clojure-mcp) library for seamless REPL integration.
 
 ### 🔍 Focused Development with Selective Mounting
 
 One particularly interesting aspect of this containerized approach is that you can not only mount a full project, but also break larger projects into smaller parts and mount only specific subsections. This allows you to provide reduced context to your LLM, keeping it focused on the current area of interest in your codebase rather than being overwhelmed by the entire project structure.
 
-### 💡 Recommended Approach: SSE Proxy in Container
+### 💡 Recommended Pattern: Container Proxy
 
-Based on practical experience, running the SSE proxy inside the container (Pattern 2: `cont_proxy_in_cont`) tends to provide the smoothest workflow. This approach keeps Claude's responsibility minimal - simply pointing Claude to a ready endpoint that's prepared for immediate interaction. The container handles all the complexity internally, presenting Claude with a clean, standardized HTTP/SSE interface.
+Based on practical experience, running the SSE proxy inside the container (`patterns/container-proxy`) tends to provide the smoothest workflow. This approach keeps Claude's responsibility minimal - simply pointing Claude to a ready endpoint that's prepared for immediate interaction. The container handles all the complexity internally, presenting Claude with a clean, standardized HTTP/SSE interface.
 
 ## 🚀 Three Command Startup
 
@@ -103,7 +103,7 @@ This command chain:
    devenv shell
    ```
 
-6. **Generate MCP bridge script (for container-in-host):**
+6. **Generate MCP bridge script (for host-proxy pattern):**
 
    ```bash
    bridge
@@ -129,54 +129,54 @@ This command chain:
 
 10. **Restart Claude Desktop** to load the new MCP servers
 
-## 🏗️ Architecture Overview
+## 🏗️ Architecture Patterns
 
 This project demonstrates different architectural patterns for connecting Claude Desktop to Clojure development environments:
 
-### Pattern 1: Direct Container Connection (`cont_proxy_none`)
+### Pattern 1: Direct Connection (`patterns/direct`)
 
-```  bash
+``` bash
 Claude Desktop → podman exec → Container (Clojure MCP)
 ```
 
-- **Pros**: Simple, direct connection
+- **Pros**: Simple, direct connection with minimal overhead
 - **Cons**: Platform-specific commands in Claude config
-- **Best for**: Simple setups and quick testing
+- **Best for**: Simple setups, quick testing, local development
 
-### Pattern 2: Container with Internal Proxy (`cont_proxy_in_cont`)
+### Pattern 2: Container Proxy (`patterns/container-proxy`)
 
-```  bash
+``` bash
 Claude Desktop → mcp-proxy client → HTTP/SSE → Container (mcp-proxy server + Clojure MCP)
 ```
 
-- **Pros**: Platform-agnostic HTTP communication
-- **Cons**: More complex container setup
-- **Best for**: Cross-platform compatibility, HTTP-based workflows
+- **Pros**: Platform-agnostic HTTP communication, self-contained
+- **Cons**: Slightly more complex container setup
+- **Best for**: Cross-platform compatibility, production-like environments
 
-### Pattern 3: Container with Host Proxy (`cont_proxy_in_host`)
+### Pattern 3: Host Proxy (`patterns/host-proxy`)
 
-```  bash
+``` bash
 Claude Desktop → Bridge Script → mcp-proxy (host) → HTTP/SSE → Container (Clojure MCP)
 ```
 
-- **Pros**: If you have to it is good to know you can
-- **Cons**: Requires host-side proxy installation. Passes responsibility to the host
+- **Pros**: Proxy control on host if that's what you need
+- **Cons**: Requires host-side proxy installation. Slow.
 - **Best for**: Development environments where you want proxy control on the host
 
-### Pattern 4: Virtual Machine Setup (`vm_proxy_in_vm`)
+### Pattern 4: VM Proxy (`patterns/vm-proxy`)
 
-```  bash
+``` bash
 Claude Desktop → mcp-proxy client → HTTP/SSE → VM (mcp-proxy server + Clojure MCP)
 ```
 
 - **Pros**: Better isolation, reproducible VM environments
-- **Cons**: Higher resource usage. Need to start VM and necessary processes on VM separately
-- **Best for**: Team using VMs in >=2025
+- **Cons**: Higher resource usage, requires VM management, not as automatable
+- **Best for**: Team environments, security-conscious setups
 
 ## 📁 Project Structure
 
 ``` bash
-├── bootstrap/              # Installation scripts for Nix and devenv
+├── bootstrap/                # Installation scripts for Nix and devenv
 │   ├── 01-install-nix.sh
 │   └── 02-install-devenv.sh
 ├── bin/                      # Utility scripts
@@ -184,13 +184,13 @@ Claude Desktop → mcp-proxy client → HTTP/SSE → VM (mcp-proxy server + Cloj
 │   ├── claude-win.sh         # Windows-specific Claude configs
 │   ├── copy-claude-config.sh # Copy config to OS location with backup
 │   ├── gen-bridge.sh         # Generate MCP bridge scripts
-│   └── containers-*.sh       # Container management scripts
+│   ├── containers-*.sh       # Container management scripts
 │   └── images-*.sh           # Image management scripts
-├── examples/                 # Four different connection patterns
-│   ├── cont_proxy_none/      # Direct container connection
-│   ├── cont_proxy_in_cont/   # Container-based proxy
-│   ├── cont_proxy_in_host/   # Host-based proxy
-│   └── vm_proxy_in_vm/       # VM-based setup
+├── patterns/                 # Four different connection patterns
+│   ├── direct/               # Direct container connection (no proxy)
+│   ├── container-proxy/      # Proxy inside container
+│   ├── host-proxy/           # Proxy on host system
+│   └── vm-proxy/             # VM-based setup with proxy
 ├── src/mcp/                  # Example Clojure application
 │   └── mcp.clj               # Playground where your project would go
 ├── devenv.nix                # Development environment configuration
@@ -201,23 +201,23 @@ Claude Desktop → mcp-proxy client → HTTP/SSE → VM (mcp-proxy server + Cloj
 
 ### Reproducible Setup with devenv
 
-- **Nix-based**: Ensures identical environments across machines without version conflict (installed via bootstrap script)
-- **Container Support**: Podman/Docker integration (available per default in this devenv shell)
-- **Python Tools**: Pre-configured `mcp-proxy` and dependencies (available per default in this devenv shell)
-- **Clojure Tools**: Complete Clojure development stack (available per default in this devenv shell)
+- **Nix-based**: Ensures identical environments across machines without version conflicts (installed via bootstrap script)
+- **Container Support**: Podman/Docker integration (available by default in devenv shell)
+- **Python Tools**: Pre-configured `mcp-proxy` and dependencies (available by default in devenv shell)
+- **Clojure Tools**: Complete Clojure development stack (available by default in devenv shell)
 
 ### MCP Integration
 
 - **clojure-mcp**: Direct REPL integration with Claude
 - **Multi-pattern**: Four different connection architectures
-- **Cross-platform**: (Theoretical! Help me confirm and improve!) Windows, macOS, and Linux support
+- **Cross-platform**: Windows, macOS, and Linux support (help us test and improve!)
 - **Logging**: Comprehensive logging for debugging
 
 ### Container Features
 
 - **Clojure 1.12.1**: Latest stable Clojure version
 - **nREPL**: Interactive development server
-- **Volume Mounts**: Live code editing without risk of Claude going rogue
+- **Volume Mounts**: Live code editing with isolation
 - **Port Forwarding**: HTTP/SSE communication
 
 ## 🎨 Example Usage
@@ -244,7 +244,7 @@ Once connected, you can interact with your Clojure codebase through Claude Deskt
 
 ## 🔧 Available Commands
 
-The devenv shell provides you convenient scripts to seamlessly get up and running:
+The devenv shell provides convenient scripts for seamless setup:
 
 ### Setup Commands
 
@@ -260,8 +260,8 @@ The devenv shell provides you convenient scripts to seamlessly get up and runnin
 
 ### Advanced Commands
 
-- `dev-*` - Development versions of the above commands (including high-level mcp development of the entire project)
-- `claude-*-vm` - Generate Claude Desktop config with VM support and copy to system location (if youre running a vm that looks like the containers here!)
+- `dev-*` - Development versions of the above commands (including high-level mcp development)
+- `claude-*-vm` - Generate Claude Desktop config with VM support and copy to system location
 
 ## 🐛 Troubleshooting
 
@@ -276,7 +276,7 @@ The devenv shell provides you convenient scripts to seamlessly get up and runnin
 2. **Check Claude Desktop config:**
    - Ensure config file is in the correct location
    - Restart Claude Desktop after config changes
-   - On Windows, stop Claude from Task Manager if needed (view -> reload is usually enough)
+   - On Windows, stop Claude from Task Manager if needed (View → Reload is usually enough)
 
 3. **Test MCP connection manually:**
 
@@ -284,7 +284,7 @@ The devenv shell provides you convenient scripts to seamlessly get up and runnin
    # Test container-based MCP
    podman exec -it <container-name> clojure -X:mcp
 
-   # Test HTTP endpoint
+   # Test HTTP endpoint (for proxy patterns)
    curl http://localhost:7080/status
    ```
 
@@ -299,13 +299,13 @@ The devenv shell provides you convenient scripts to seamlessly get up and runnin
 
 This project is designed to be educational and easily reproducible. Contributions that improve:
 
-- **Check functionality on MacOS especially (please!)**
+- **Cross-platform testing** (especially macOS)
 - **Documentation clarity**
-- **Cross-platform compatibility**
 - **New connection patterns**
 - **Troubleshooting guides**
+- **Performance optimizations**
 
-are especially welcome! You can write me in the repo or provide a PR. I am also on Clojure Slack (Stoating) and on the Clojure Camp (Stoating)
+are especially welcome! Feel free to open issues or submit PRs. You can also reach me on Clojure Slack or Clojure Camp as @Stoating.
 
 ## 🙏 Acknowledgments
 

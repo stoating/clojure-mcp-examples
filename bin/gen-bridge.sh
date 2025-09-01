@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-OUT="$(pwd)/examples/cont_proxy_in_host/gen/claude_desktop/clojure-mcp-bridge.sh"
+# Create necessary directories
+mkdir -p "$(pwd)/patterns/host-proxy/gen/claude_desktop"
+
+OUT="$(pwd)/patterns/host-proxy/gen/claude_desktop/clojure-mcp-bridge.sh"
 
 HOST="127.0.0.1"
 PORT="7081"
-LOG_FILE="$(pwd)/examples/cont_proxy_in_host/.logs/mcp-sse.out"
+LOG_FILE="$(pwd)/patterns/host-proxy/.logs/mcp-sse.out"
 
 # Resolve binaries (inside devenv or PATH)
 CURL_BIN="$(command -v curl)"

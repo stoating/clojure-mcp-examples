@@ -10,27 +10,27 @@ echo ""
 echo "Starting containers sequentially..."
 echo "================================"
 
-# Start cont_proxy_in_cont
+# Start container-proxy pattern
 echo ""
-echo "1. Building and starting clojure-mcp-proxy-in-cont..."
-./examples/cont_proxy_in_cont/devenv/container/image-build.sh
-./examples/cont_proxy_in_cont/devenv/container/run-container.sh &
+echo "1. Building and starting container-proxy pattern..."
+./patterns/container-proxy/devenv/container/image-build.sh
+./patterns/container-proxy/devenv/container/run-container.sh &
 
 sleep 2
 
-# Start cont_proxy_in_host
+# Start host-proxy pattern
 echo ""
-echo "2. Building and starting clojure-mcp-proxy-in-host..."
-./examples/cont_proxy_in_host/devenv/container/image-build.sh
-./examples/cont_proxy_in_host/devenv/container/run-container.sh &
+echo "2. Building and starting host-proxy pattern..."
+./patterns/host-proxy/devenv/container/image-build.sh
+./patterns/host-proxy/devenv/container/run-container.sh &
 
 sleep 2
 
-# Start cont_proxy_none
+# Start direct pattern
 echo ""
-echo "3. Building and starting clojure-mcp-proxy-none..."
-./examples/cont_proxy_none/devenv/container/image-build.sh
-./examples/cont_proxy_none/devenv/container/run-container.sh &
+echo "3. Building and starting direct pattern..."
+./patterns/direct/devenv/container/image-build.sh
+./patterns/direct/devenv/container/run-container.sh &
 
 sleep 2
 
