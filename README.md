@@ -191,8 +191,6 @@ Claude Desktop → mcp-proxy client → HTTP/SSE → VM (mcp-proxy server + Cloj
 │   ├── container-proxy/      # Proxy inside container
 │   ├── host-proxy/           # Proxy on host system
 │   └── vm-proxy/             # VM-based setup with proxy
-├── src/mcp/                  # Example Clojure application
-│   └── mcp.clj               # Playground where your project would go
 ├── devenv.nix                # Development environment configuration
 └── deps.edn                  # Clojure dependencies and aliases
 ```

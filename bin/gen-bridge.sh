@@ -30,7 +30,7 @@ LOG_FILE="${LOG_FILE}"
 
 # start SSE server (in background) that spawns MCP in the container
 "\$MCP_PROXY" --host="\$HOST" --port="\$PORT" -- \\
-  "\$PODMAN" exec -i -w "/usr/app" "clojure-mcp-proxy-in-host" clojure -X:mcp \\
+  "\$PODMAN" exec -i -w "/usr/app" "clojure-mcp-host-proxy" clojure -X:mcp \\
   >> "\$LOG_FILE" 2>&1 &
 
 # wait for server

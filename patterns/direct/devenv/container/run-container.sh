@@ -32,7 +32,7 @@ podman run \
   --rm \
   -v "$PROJECT_DIR:/usr/app/":Z \
   -v "$HOME/.m2:/root/.m2" \
-  --name clojure-mcp-proxy-none \
+  --name clojure-mcp-direct \
   -it \
-  clojure-mcp-proxy-none-image \
+  clojure-mcp-direct-image \
   /usr/app/devenv/entrypoint.sh

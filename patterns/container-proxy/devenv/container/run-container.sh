@@ -33,7 +33,7 @@ podman run \
   -v "$PROJECT_DIR:/usr/app/":Z \
   -v "$HOME/.m2:/root/.m2" \
   -p 127.0.0.1:7080:7080 \
-  --name clojure-mcp-proxy-in-cont \
+  --name clojure-mcp-container-proxy \
   -it \
-  clojure-mcp-proxy-in-cont-image \
+  clojure-mcp-container-proxy-image \
   /usr/app/devenv/entrypoint.sh

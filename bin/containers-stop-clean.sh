@@ -4,9 +4,9 @@ set -euo pipefail
 DEV="$1"
 
 CONTAINER_NAMES=(
-  clojure-mcp-proxy-in-cont
-  clojure-mcp-proxy-in-host
-  clojure-mcp-proxy-none
+  clojure-mcp-container-proxy
+  clojure-mcp-host-proxy
+  clojure-mcp-direct
 )
 
 if [[ "$DEV" == "true" ]]; then

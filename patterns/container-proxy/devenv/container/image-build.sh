@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-podman build -t clojure-mcp-proxy-in-cont-image -f examples/cont_proxy_in_cont/devenv/container/Containerfile .
+podman build -t clojure-mcp-container-proxy-image -f patterns/container-proxy/devenv/container/Containerfile .

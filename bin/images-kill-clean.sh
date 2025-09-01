@@ -4,9 +4,9 @@ set -euo pipefail
 DEV="$1"
 
 IMAGE_TAGS=(
-  clojure-mcp-proxy-in-cont-image
-  clojure-mcp-proxy-in-host-image
-  clojure-mcp-proxy-none-image
+  clojure-mcp-container-proxy-image
+  clojure-mcp-host-proxy-image
+  clojure-mcp-direct-image
 )
 
 if [[ "$DEV" == "true" ]]; then

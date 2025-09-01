@@ -32,7 +32,7 @@ podman run \
   --rm \
   -v "$PROJECT_DIR:/usr/app/":Z \
   -v "$HOME/.m2:/root/.m2" \
-  --name clojure-mcp-proxy-in-host \
+  --name clojure-mcp-host-proxy \
   -it \
-  clojure-mcp-proxy-in-host-image \
+  clojure-mcp-host-proxy-image \
   /usr/app/devenv/entrypoint.sh
