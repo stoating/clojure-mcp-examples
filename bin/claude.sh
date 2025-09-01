@@ -105,3 +105,7 @@ echo "  podman    : $PODMAN"
 echo "  bridge    : $BRIDGE_PATH"
 echo "  vm section: $VM"
 echo "  dev mode  : $DEV"
+
+# Copy config to OS-specific location
+echo "Copy config to destination..."
+bash ./bin/copy-claude-config.sh

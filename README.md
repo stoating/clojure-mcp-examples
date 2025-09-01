@@ -55,17 +55,12 @@ This command chain:
 
 - Generates the **MCP bridge script**
 - Creates your **Claude Desktop configuration** (platform-specific)
+- **Automatically copies the config** to your OS-specific Claude Desktop directory (with backup of existing config)
 - **Starts the development containers**
 
-### 4. Final Setup Step
+### 4. Final Step
 
-Copy the generated `claude_desktop_config.json` to Claude Desktop's config directory:
-
-- **Windows**: `%APPDATA%\Roaming\Claude\claude_desktop_config.json`
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Linux**: `~/.config/Claude/claude_desktop_config.json`
-
-Then **restart Claude Desktop** - you'll now have Clojure MCP tools available!
+**Restart Claude Desktop** (or use View → Reload) - you'll now have Clojure MCP tools available!
 
 ---
 
@@ -186,21 +181,22 @@ Claude Desktop → mcp-proxy client → HTTP/SSE → VM (mcp-proxy server + Cloj
 ├── bootstrap/              # Installation scripts for Nix and devenv
 │   ├── 01-install-nix.sh
 │   └── 02-install-devenv.sh
-├── bin/                    # Utility scripts
-│   ├── claude.sh           # Generate Claude Desktop configs
-│   ├── claude-win.sh       # Windows-specific Claude configs
-│   ├── gen-bridge.sh       # Generate MCP bridge scripts
-│   └── containers-*.sh     # Container management scripts
-│   └── images-*.sh         # Image management scripts
-├── examples/               # Four different connection patterns
-│   ├── cont_proxy_none/    # Direct container connection
-│   ├── cont_proxy_in_cont/ # Container-based proxy
-│   ├── cont_proxy_in_host/ # Host-based proxy
-│   └── vm_proxy_in_vm/     # VM-based setup
-├── src/mcp/                # Example Clojure application
-│   └── mcp.clj             # Playground where your project would go
-├── devenv.nix              # Development environment configuration
-└── deps.edn                # Clojure dependencies and aliases
+├── bin/                      # Utility scripts
+│   ├── claude.sh             # Generate Claude Desktop configs
+│   ├── claude-win.sh         # Windows-specific Claude configs
+│   ├── copy-claude-config.sh # Copy config to OS location with backup
+│   ├── gen-bridge.sh         # Generate MCP bridge scripts
+│   └── containers-*.sh       # Container management scripts
+│   └── images-*.sh           # Image management scripts
+├── examples/                 # Four different connection patterns
+│   ├── cont_proxy_none/      # Direct container connection
+│   ├── cont_proxy_in_cont/   # Container-based proxy
+│   ├── cont_proxy_in_host/   # Host-based proxy
+│   └── vm_proxy_in_vm/       # VM-based setup
+├── src/mcp/                  # Example Clojure application
+│   └── mcp.clj               # Playground where your project would go
+├── devenv.nix                # Development environment configuration
+└── deps.edn                  # Clojure dependencies and aliases
 ```
 
 ## 🛠️ Development Environment Features
@@ -255,10 +251,11 @@ The devenv shell provides you convenient scripts to seamlessly get up and runnin
 ### Setup Commands
 
 - `bridge` - Generate MCP bridge configuration
-- `claude` - Generate Claude Desktop config (Linux/macOS)
-- `claude-vm` - Generate Claude Desktop config with VM support
-- `claude-win` - Generate Claude Desktop config (Windows)
-- `claude-win-vm` - Generate Claude Desktop config (Windows + VM)
+- `claude` - Generate Claude Desktop config (Linux/macOS) and copy to system location
+- `claude-vm` - Generate Claude Desktop config with VM support and copy to system location
+- `claude-win` - Generate Claude Desktop config (Windows) and copy to system location
+- `claude-win-vm` - Generate Claude Desktop config (Windows + VM) and copy to system location
+- `copy-claude-config` - Copy existing config to OS-specific Claude Desktop location (with backup)
 
 ### Environment Management
 
