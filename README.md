@@ -112,13 +112,11 @@ This command chain:
 7. **Generate Claude Desktop configuration (choose one):**
 
    ```bash
-   claude        # For Linux/macOS (recommended for Linux/macOS)
-   claude-vm     # For Linux/macOS with VM support
-   claude-win    # For Windows (recommended for Windows)
-   claude-win-vm # For Windows with VM support
+   claude     # For Linux/macOS (recommended for Linux/macOS)
+   claude-win # For Windows (recommended for Windows)
    ```
 
-8. **Copy the generated `claude_desktop_config.json` to Claude Desktop's config directory:**
+8. **These commands will copy the generated `claude_desktop_config.json` to Claude Desktop's config directory:**
    - **Windows**: `%APPDATA%\Roaming\Claude\claude_desktop_config.json`
    - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
    - **Linux**: `~/.config/Claude/claude_desktop_config.json`
@@ -252,17 +250,18 @@ The devenv shell provides you convenient scripts to seamlessly get up and runnin
 
 - `bridge` - Generate MCP bridge configuration
 - `claude` - Generate Claude Desktop config (Linux/macOS) and copy to system location
-- `claude-vm` - Generate Claude Desktop config with VM support and copy to system location
 - `claude-win` - Generate Claude Desktop config (Windows) and copy to system location
-- `claude-win-vm` - Generate Claude Desktop config (Windows + VM) and copy to system location
-- `copy-claude-config` - Copy existing config to OS-specific Claude Desktop location (with backup)
 
 ### Environment Management
 
 - `start` - Start all development containers
 - `stop` - Stop all running containers
 - `remove` - Remove containers and images
+
+### Advanced Commands
+
 - `dev-*` - Development versions of the above commands (including high-level mcp development of the entire project)
+- `claude-*-vm` - Generate Claude Desktop config with VM support and copy to system location (if youre running a vm that looks like the containers here!)
 
 ## 🐛 Troubleshooting
 
@@ -288,8 +287,6 @@ The devenv shell provides you convenient scripts to seamlessly get up and runnin
    # Test HTTP endpoint
    curl http://localhost:7080/status
    ```
-
-## 🧪 Development Workflow
 
 ## 📚 Learning Resources
 
