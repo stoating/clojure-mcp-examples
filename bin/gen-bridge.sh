@@ -34,7 +34,7 @@ LOG_FILE="${LOG_FILE}"
   >> "\$LOG_FILE" 2>&1 &
 
 # wait for server
-for i in {1..50}; do
+for i in {1..60}; do
   "\$CURL" -fsS "http://\${HOST}:\${PORT}/status" >/dev/null && break || sleep 1
 done
 

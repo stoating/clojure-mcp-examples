@@ -19,7 +19,7 @@ BRIDGE_PATH="$(pwd)/patterns/host-proxy/gen/claude_desktop/clojure-mcp-bridge.sh
 
 # Define JSON snippets for each server
 server_in_cont=$(cat <<JSON
-    "clojure-mcp-proxy-in-cont": {
+    "clj-mcp-container-proxy": {
       "command": "${BASH_BIN}",
       "args": [
         "-c",
@@ -30,7 +30,7 @@ JSON
 )
 
 server_examples=$(cat <<JSON
-    "clojure-mcp-examples": {
+    "clj-mcp-examples": {
       "command": "${BASH_BIN}",
       "args": [
         "-c",
@@ -41,18 +41,18 @@ JSON
 )
 
 server_none=$(cat <<JSON
-    "clojure-mcp-proxy-none": {
+    "clj-mcp-direct": {
       "command": "${BASH_BIN}",
       "args": [
         "-c",
-        "exec ${PODMAN} exec -i -w /usr/app clojure-mcp-proxy-none clojure -X:mcp"
+        "exec ${PODMAN} exec -i -w /usr/app clojure-mcp-direct clojure -X:mcp"
       ]
     }
 JSON
 )
 
 server_vm=$(cat <<JSON
-    "clojure-mcp-vm-proxy-in-vm": {
+    "clj-mcp-vm-proxy": {
       "command": "${BASH_BIN}",
       "args": [
         "-c",
@@ -63,7 +63,7 @@ JSON
 )
 
 server_in_host=$(cat <<JSON
-    "clojure-mcp-proxy-in-host": {
+    "clj-mcp-host-proxy": {
       "command": "${BASH_BIN}",
       "args": [
         "-c",
