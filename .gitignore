@@ -12,3 +12,4 @@ devenv.local.nix
 
 # Gen Files
 **/gen/**/*.sh
+gen/*

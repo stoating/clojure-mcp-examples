@@ -4,7 +4,10 @@ set -euo pipefail
 VM="$1"
 DEV="$2"
 
-OUT="claude_desktop_config.json"
+# Create gen directory if it doesn't exist
+mkdir -p gen
+
+OUT="gen/claude_desktop_config.json"
 
 # Resolve nix-store binaries (inside devenv)
 MCP_PROXY="$(command -v mcp-proxy)"

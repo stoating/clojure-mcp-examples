@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Script to copy claude_desktop_config.json to the OS-specific location
 
-SOURCE_FILE="claude_desktop_config.json"
+SOURCE_FILE="gen/claude_desktop_config.json"
 
 # Default value
 OS_TYPE="Unknown"
@@ -50,7 +50,7 @@ echo "🔍 Detected OS: $OS_TYPE"
 
 # Check if source file exists
 if [[ ! -f "$SOURCE_FILE" ]]; then
-    echo "❌ Error: $SOURCE_FILE not found in current directory"
+    echo "❌ Error: $SOURCE_FILE not found"
     echo "   Run 'claude' or 'claude-win' to generate the config"
     exit 1
 fi
