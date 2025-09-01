@@ -21,7 +21,55 @@ One particularly interesting aspect of this containerized approach is that you c
 
 Based on practical experience, running the SSE proxy inside the container (Pattern 2: `cont_proxy_in_cont`) tends to provide the smoothest workflow. This approach keeps Claude's responsibility minimal - simply pointing Claude to a ready endpoint that's prepared for immediate interaction. The container handles all the complexity internally, presenting Claude with a clean, standardized HTTP/SSE interface.
 
-## 🚀 Quick Start
+## 🚀 Three Command Startup
+
+Get up and running with Claude + Clojure in just **three commands**:
+
+### 1. Clone and Install Nix
+
+```bash
+git clone <repository-url> && cd clojure-mcp-examples && ./bootstrap/01-install-nix.sh
+```
+
+**⚠️ Important:** Close your terminal and open a new one after this step.
+
+### 2. Install devenv and Enter Development Shell
+
+```bash
+./bootstrap/02-install-devenv.sh && devenv shell
+```
+
+This installs **devenv** and enters the development shell with all dependencies (Podman, Clojure, mcp-proxy, etc.).
+
+### 3. Setup Everything and Start
+
+```bash
+# For Linux/macOS:
+bridge && claude && start
+
+# For Windows:
+bridge && claude-win && start
+```
+
+This command chain:
+
+- Generates the **MCP bridge script**
+- Creates your **Claude Desktop configuration** (platform-specific)
+- **Starts the development containers**
+
+### 4. Final Setup Step
+
+Copy the generated `claude_desktop_config.json` to Claude Desktop's config directory:
+
+- **Windows**: `%APPDATA%\Roaming\Claude\claude_desktop_config.json`
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+Then **restart Claude Desktop** - you'll now have Clojure MCP tools available!
+
+---
+
+## 📖 Detailed Setup (Step-by-step Approach)
 
 ### Prerequisites
 
@@ -31,7 +79,7 @@ Based on practical experience, running the SSE proxy inside the container (Patte
 
 - For VM setup, you'll need a VM to be set up (You can use VirtualBox, VMware, or any other virtualization tool of your choice). I have an example setup here: [nixos - setup virtual machine dev env](https://youtu.be/8CXBBitdjBU)
 
-### One-Time Setup
+### Step-by-Step Setup
 
 1. **Clone the repository:**
 

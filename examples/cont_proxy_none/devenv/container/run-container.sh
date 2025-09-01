@@ -28,6 +28,7 @@ PROJECT_DIR="$(dirname $(dirname $script_dir))"
 echo "Project directory: $PROJECT_DIR"
 
 podman run \
+  --replace \
   --rm \
   -v "$PROJECT_DIR:/usr/app/":Z \
   -v "$HOME/.m2:/root/.m2" \
