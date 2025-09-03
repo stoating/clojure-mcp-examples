@@ -1,5 +1,5 @@
 # devenv.nix
-{ pkgs, inputs, lib, ... }:
+{ pkgs, inputs, lib, config, ... }:
 
 let
   py = pkgs.python312Packages;
@@ -57,6 +57,57 @@ in {
           sha256 = "sha256-Hvp+fKWUP20ZeZDlNXwV+Re6qIQtnY0LwbhfJRRL99o=";
         };
       });
+
+      # Define codex (Node CLI) 0.29.0 from the NPM tarball
+      codex = prev.stdenv.mkDerivation (finalAttrs: rec {
+        pname = "codex";
+        version = "0.29.0";
+
+        src = prev.fetchurl {
+          url = "https://registry.npmjs.org/@openai/codex/-/codex-${version}.tgz";
+          # Build once to get the correct SRI (will print "got: sha256-...")
+          sha256 = "sha256-ZK9x+D1j3KGexQPQMXoXtOmmGYIOL2s8jzmyDJIccUY=";
+        };
+
+        nativeBuildInputs = [
+          prev.nodejs_22
+          prev.makeBinaryWrapper
+          prev.installShellFiles
+        ];
+
+        # NPM tarballs unpack into a "package" directory and set that as CWD
+        installPhase = ''
+          runHook preInstall
+
+          dest=$out/lib/node_modules/@openai/codex
+          mkdir -p "$dest"
+          # Copy the whole packaged module contents (we are already in ./package)
+          shopt -s dotglob nullglob
+          cp -r ./* "$dest"
+
+          mkdir -p $out/bin
+          makeBinaryWrapper ${prev.nodejs_22}/bin/node $out/bin/codex --add-flags "$dest/bin/codex.js"
+
+          ${prev.lib.optionalString (prev.stdenv.buildPlatform.canExecute prev.stdenv.hostPlatform) ''
+            $out/bin/codex completion bash > codex.bash
+            $out/bin/codex completion zsh > codex.zsh
+            $out/bin/codex completion fish > codex.fish
+            installShellCompletion codex.{bash,zsh,fish}
+          ''}
+
+          runHook postInstall
+        '';
+
+        doInstallCheck = true;
+        nativeInstallCheckInputs = [ prev.versionCheckHook ];
+
+        meta = {
+          description = "Lightweight coding agent that runs in your terminal";
+          homepage = "https://github.com/openai/codex";
+          license = prev.lib.licenses.asl20;
+          mainProgram = "codex";
+        };
+      });
     })
   ];
 
@@ -68,6 +119,8 @@ in {
     # GIT_AUTHOR_EMAIL = "you@example.com";
     # GIT_COMMITTER_NAME = "Your Name";
     # GIT_COMMITTER_EMAIL = "you@example.com";
+    # Point Codex to the live repo path (writable), not the Nix store copy
+    CODEX_HOME = "${config.devenv.root}/.codex";
   };
 
   # Tools available in PATH

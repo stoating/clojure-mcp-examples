@@ -13,3 +13,8 @@ devenv.local.nix
 # Gen Files
 **/gen/**/*.sh
 gen/*
+
+# Codex: ignore all but config
+.codex/*
+!.codex/
+!.codex/config.toml
