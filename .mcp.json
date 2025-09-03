@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "clj-mcp-container-proxy": {
+      "type": "stdio",
+      "command": "mcp-proxy",
+      "args": [
+        "http://localhost:7080/sse"
+      ]
+    }
+  }
+}

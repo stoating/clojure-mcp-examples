@@ -38,6 +38,28 @@ in {
 
   name = "clojure-mcp-examples";
 
+  # Override specific packages
+  overlays = [
+    (final: prev: {
+      # Bump claude-code from 1.0.65 -> 1.0.94 using npm tarball
+      # NPM tarball: https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-1.0.94.tgz
+      claude-code = prev.claude-code.overrideAttrs (old: let
+        version = "1.0.94";
+      in rec {
+        inherit version;
+        src = prev.fetchurl {
+          url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
+          # nix-prefetch-url --unpack https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-1.0.94.tgz
+          # devenv shell
+          # error: hash mismatch in fixed-output derivation '/nix/store/bv2ljxnhrdb6yk9wwwpnmcf5plbd9yfh-claude-code-1.0.94.tgz.drv':
+          # specified: sha256-TAGs9elamISvxeEH02w+TU+B7HTYtnWBqukTiSpikeU=
+          #    got:    sha256-Hvp+fKWUP20ZeZDlNXwV+Re6qIQtnY0LwbhfJRRL99o=
+          sha256 = "sha256-Hvp+fKWUP20ZeZDlNXwV+Re6qIQtnY0LwbhfJRRL99o=";
+        };
+      });
+    })
+  ];
+
   # Environment vars you want in the shell
   env = {
     PODMAN_IGNORE_CGROUPSV1_WARNING = "1"; # Suppress warning about cgroup v1
@@ -55,6 +77,9 @@ in {
     curl
     git
     podman
+    ripgrep
+    claude-code
+    codex
     mcp-proxy
   ];
 
@@ -64,15 +89,15 @@ in {
   # Nice-to-have: quick script runner example
   scripts = {
     "bridge".exec = "bash ./bin/gen-bridge.sh";
-    "claude".exec = "bash ./bin/claude.sh false false";
-    "claude-vm".exec = "bash ./bin/claude.sh true false";
-    "claude-win".exec = "bash ./bin/claude-win.sh false false";
-    "claude-win-vm".exec = "bash ./bin/claude-win.sh true false";
+    "claudec".exec = "bash ./bin/claude.sh false false";
+    "claudec-vm".exec = "bash ./bin/claude.sh true false";
+    "claudec-win".exec = "bash ./bin/claude-win.sh false false";
+    "claudec-win-vm".exec = "bash ./bin/claude-win.sh true false";
     "start".exec = "bash ./bin/containers-run.sh false";
     "stop".exec = "bash ./bin/containers-stop-clean.sh false";
     "remove".exec = "bash ./bin/images-kill-clean.sh false";
-    "dev-claude-vm".exec = "bash ./bin/claude.sh true true";
-    "dev-claude-win-vm".exec = "bash ./bin/claude-win.sh true true";
+    "dev-claudec-vm".exec = "bash ./bin/claude.sh true true";
+    "dev-claudec-win-vm".exec = "bash ./bin/claude-win.sh true true";
     "dev-start".exec = "bash ./bin/containers-run.sh true";
     "dev-stop".exec = "bash ./bin/containers-stop-clean.sh true";
     "dev-remove".exec = "bash ./bin/images-kill-clean.sh true";
@@ -90,14 +115,14 @@ in {
     echo "You can run the following commands from the project root:"
     echo "---------------------------------------------------------"
     echo "🔧 One-time setup for Claude Desktop (bridge and a claude):"
-    echo "  bridge     → Generate MCP Bridge config for Claude"
-    echo "  claude     → Generate Claude config for macOS/Linux and copy to destination"
-    echo "  claude-win → Generate Claude config for Windows and copy to destination"
+    echo "  bridge      → Generate MCP Bridge config for Claude"
+    echo "  claudec     → Generate Claude config for macOS/Linux and copy to destination"
+    echo "  claudec-win → Generate Claude config for Windows and copy to destination"
     echo ""
     echo "🛠  Development environment management:"
-    echo "  start      → Start the development environment"
-    echo "  stop       → Stop the development environment"
-    echo "  remove     → Remove all containers and images"
+    echo "  start       → Start the development environment"
+    echo "  stop        → Stop the development environment"
+    echo "  remove      → Remove all containers and images"
     echo "---------------------------------------------------------"
   '';
 
