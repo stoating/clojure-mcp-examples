@@ -139,6 +139,7 @@ in {
     "claude-win".exec = "bash ./bin/claude-win.sh false false";
     "claude-win-vm".exec = "bash ./bin/claude-win.sh true false";
     "copilot".exec = "bash ./bin/copilot.sh";
+    "codex-conf".exec = "bash ./bin/codex.sh";
     "start".exec = "bash ./bin/containers-run.sh false";
     "stop".exec = "bash ./bin/containers-stop-clean.sh false";
     "remove".exec = "bash ./bin/images-kill-clean.sh false";
