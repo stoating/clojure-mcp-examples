@@ -1,0 +1,10 @@
+{
+	"servers": {
+		"clj-mcp-container-proxy": {
+			"type": "stdio",
+			"command": "/nix/store/lhnlbby7c5y6zjbzzi9mdpnin14xgmdh-mcp-proxy-0.8.2/bin/mcp-proxy",
+			"args": ["http://localhost:7080/sse"]
+		}
+	},
+	"inputs": []
+}
