@@ -133,16 +133,24 @@ in {
 
   # Nice-to-have: quick script runner example
   scripts = {
-    "bridge".exec = "bash ./bin/gen-bridge.sh";
+    # one-time generation scripts for claude-desktop
     "claude-std".exec = "bash ./bin/claude.sh false false";
     "claude-std-vm".exec = "bash ./bin/claude.sh true false";
     "claude-win".exec = "bash ./bin/claude-win.sh false false";
     "claude-win-vm".exec = "bash ./bin/claude-win.sh true false";
+
+    # one-time generation scripts for non-claude tools
     "copilot".exec = "bash ./bin/copilot.sh";
     "codex-conf".exec = "bash ./bin/codex.sh";
+
+    # host-proxy
+    "bridge".exec = "bash ./bin/gen-bridge.sh";
+
     "start".exec = "bash ./bin/containers-run.sh false";
     "stop".exec = "bash ./bin/containers-stop-clean.sh false";
     "remove".exec = "bash ./bin/images-kill-clean.sh false";
+
+    # additional dev scripts for top-level repo management
     "dev-claude-vm".exec = "bash ./bin/claude.sh true true";
     "dev-claude-win-vm".exec = "bash ./bin/claude-win.sh true true";
     "dev-start".exec = "bash ./bin/containers-run.sh true";
@@ -162,14 +170,14 @@ in {
     echo "You can run the following commands from the project root:"
     echo "---------------------------------------------------------"
     echo "🔧 One-time setup for Claude Desktop (bridge and a claude):"
-    echo "  bridge      → Generate MCP Bridge config for Claude"
-    echo "  claude-std  → Generate Claude config for macOS/Linux and copy to destination"
-    echo "  claude-win  → Generate Claude config for Windows and copy to destination"
+    echo "  bridge     → Generate MCP Bridge config for Claude"
+    echo "  claude-std → Generate Claude config for macOS/Linux and copy to destination"
+    echo "  claude-win → Generate Claude config for Windows and copy to destination"
     echo ""
     echo "🛠  Development environment management:"
-    echo "  start       → Start the development environment"
-    echo "  stop        → Stop the development environment"
-    echo "  remove      → Remove all containers and images"
+    echo "  start      → Start the development environment"
+    echo "  stop       → Stop the development environment"
+    echo "  remove     → Remove all containers and images"
     echo "---------------------------------------------------------"
   '';
 
