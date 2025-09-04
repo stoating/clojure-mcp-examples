@@ -76,6 +76,7 @@ in {
         ];
 
         # NPM tarballs unpack into a "package" directory and set that as CWD
+        # From https://github.com/NixOS/nixpkgs/blob/nixos-25.05/pkgs/by-name/co/codex/package.nix#L75
         installPhase = ''
           runHook preInstall
 
@@ -98,15 +99,6 @@ in {
           runHook postInstall
         '';
 
-        doInstallCheck = true;
-        nativeInstallCheckInputs = [ prev.versionCheckHook ];
-
-        meta = {
-          description = "Lightweight coding agent that runs in your terminal";
-          homepage = "https://github.com/openai/codex";
-          license = prev.lib.licenses.asl20;
-          mainProgram = "codex";
-        };
       });
     })
   ];
