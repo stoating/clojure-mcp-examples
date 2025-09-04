@@ -134,15 +134,16 @@ in {
   # Nice-to-have: quick script runner example
   scripts = {
     "bridge".exec = "bash ./bin/gen-bridge.sh";
-    "claudec".exec = "bash ./bin/claude.sh false false";
-    "claudec-vm".exec = "bash ./bin/claude.sh true false";
-    "claudec-win".exec = "bash ./bin/claude-win.sh false false";
-    "claudec-win-vm".exec = "bash ./bin/claude-win.sh true false";
+    "claude-std".exec = "bash ./bin/claude.sh false false";
+    "claude-std-vm".exec = "bash ./bin/claude.sh true false";
+    "claude-win".exec = "bash ./bin/claude-win.sh false false";
+    "claude-win-vm".exec = "bash ./bin/claude-win.sh true false";
+    "copilot".exec = "bash ./bin/copilot.sh";
     "start".exec = "bash ./bin/containers-run.sh false";
     "stop".exec = "bash ./bin/containers-stop-clean.sh false";
     "remove".exec = "bash ./bin/images-kill-clean.sh false";
-    "dev-claudec-vm".exec = "bash ./bin/claude.sh true true";
-    "dev-claudec-win-vm".exec = "bash ./bin/claude-win.sh true true";
+    "dev-claude-vm".exec = "bash ./bin/claude.sh true true";
+    "dev-claude-win-vm".exec = "bash ./bin/claude-win.sh true true";
     "dev-start".exec = "bash ./bin/containers-run.sh true";
     "dev-stop".exec = "bash ./bin/containers-stop-clean.sh true";
     "dev-remove".exec = "bash ./bin/images-kill-clean.sh true";
@@ -161,8 +162,8 @@ in {
     echo "---------------------------------------------------------"
     echo "🔧 One-time setup for Claude Desktop (bridge and a claude):"
     echo "  bridge      → Generate MCP Bridge config for Claude"
-    echo "  claudec     → Generate Claude config for macOS/Linux and copy to destination"
-    echo "  claudec-win → Generate Claude config for Windows and copy to destination"
+    echo "  claude-std  → Generate Claude config for macOS/Linux and copy to destination"
+    echo "  claude-win  → Generate Claude config for Windows and copy to destination"
     echo ""
     echo "🛠  Development environment management:"
     echo "  start       → Start the development environment"
