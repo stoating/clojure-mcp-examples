@@ -13,6 +13,7 @@ devenv.local.nix
 # Gen Files
 **/gen/**/*.sh
 gen/*
+.vscode/mcp.json
 
 # Codex: ignore all but config
 .codex/*
