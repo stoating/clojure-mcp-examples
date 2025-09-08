@@ -1,134 +1,100 @@
-# Development Environment
+# Clojure MCP Container Proxy
 
-This directory contains the containerized development environment for the Clojure MCP project.
+A containerized Clojure development environment that provides MCP (Model Context Protocol) server functionality with HTTP SSE (Server-Sent Events) proxy support for integration with Claude Desktop.
+
+## Overview
+
+This project demonstrates how to create a Clojure-based MCP server that runs in a container and exposes its functionality through an HTTP SSE endpoint. The setup includes:
+
+- **Clojure MCP Server**: A simple Clojure application with example functions exposed as MCP tools
+- **nREPL Development Environment**: Interactive Clojure development with REPL access
+- **HTTP SSE Proxy**: Bridges the MCP stdio interface to HTTP for Claude Desktop integration
+- **Containerized Setup**: Complete development environment packaged in a container
+
+## Project Structure
+
+```bash
+.
+├── deps.edn                 # Clojure project dependencies and aliases
+├── src/
+│   └── mcp/
+│       └── mcp.clj          # Main Clojure application with MCP functions
+└── devenv/
+    ├── entrypoint.sh        # Container startup script
+    └── container/
+        ├── Containerfile    # Container image definition
+        ├── image-build.sh   # Container build script
+        └── run-container.sh # Container run script
+```
+
+## Clojure Application
+
+The main Clojure application (`src/mcp/mcp.clj`) provides example MCP functionality:
+
+### Dependencies
+
+The project uses:
+
+- **Clojure 1.12.1**: Core language
+- **clojure-mcp**: Library for MCP server functionality (from [bhauman/clojure-mcp](https://github.com/bhauman/clojure-mcp))
+- **nREPL**: Interactive development environment
+- **mcp-proxy**: HTTP SSE bridge for MCP stdio interface
 
 ## Prerequisites
 
 - **Podman** (or Docker) installed on your system
 - **Git** for cloning the repository
 
-## Container Setup
+## Quick Start
 
-### Building the Image
+### 1. Build the Container Image
 
-To build the container image, run the following command from the project root directory:
+From the project root directory:
 
 ```bash
-podman build -t clojure-mcp-proxy-in-cont-image devenv/container/
+podman build -t clojure-mcp-container-proxy-image devenv/container/
 ```
 
-This will:
+Or use the provided script:
 
-- Use the official Clojure tools-deps image with Temurin JDK 21
-- Install required dependencies (curl, ca-certificates)
-- Install `uv` package manager
-- Install `mcp-proxy` tool via uv
-- Set up the working directory at `/usr/app`
-- Expose port 7080 for the HTTPS SSE server
+```bash
+./devenv/container/image-build.sh
+```
 
-### Running the Container
-
-After building the image, you can run the container using the provided script:
+### 2. Run the Container
 
 ```bash
 ./devenv/container/run-container.sh
 ```
 
-This script will:
+This will:
 
 - Mount the project directory to `/usr/app/` inside the container
-- Mount your local Maven repository (`~/.m2`) to `/root/.m2` for dependency caching
+- Mount your local Maven repository (`~/.m2`) for dependency caching
 - Expose port 7080 for the MCP SSE proxy
-- Start the container interactively
-- Execute the entrypoint script that sets up the development environment
+- Start both nREPL (port 7888) and MCP SSE proxy (port 7080)
+- Display real-time logs from both services
 
-## What Happens When You Run
+### 3. Verify the Setup
 
-When the container starts, the entrypoint script will:
+The container provides:
 
-1. **Set up logging**: Create `.logs` directory and prepare log files
-2. **Start nREPL server**: Launch a Clojure REPL server for development
-3. **Start MCP SSE proxy**: Launch the MCP proxy on port 7080 that bridges to the Clojure MCP stdio interface
-4. **Tail logs**: Display real-time logs from both services
-
-The container will run indefinitely, providing:
-
-- A Clojure development environment via nREPL
-- An HTTP SSE endpoint at `http://localhost:7080` for MCP communication
-- Real-time log monitoring
-
-## Logs
-
-Development logs are stored in the `.logs` directory:
-
-- `nrepl.out` - nREPL server logs
-- `mcp-sse.out` - MCP SSE proxy logs
-
-## Stopping the Container
-
-To stop the running container:
-
-```bash
-podman stop clojure-mcp-proxy-in-cont
-```
-
-Or simply press `Ctrl+C` if running interactively.
-
-## Troubleshooting
-
-### Port Already in Use
-
-If port 7080 is already in use, you have several options:
-
-#### Option 1: Kill the process using the port**
-
-```bash
-# Find the process using port 7080
-lsof -i :7080
-
-# Example output:
-# COMMAND  PID     USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
-# exe     5789 stoating   12u  IPv6  81839      0t0  TCP *:7080 (LISTEN)
-
-# Kill the process using the PID from the output
-kill 5789
-```
-
-#### Option 2: Use a different port
-
-Modify the port mapping in the run command:
-
-```bash
--p 8080:7080  # Maps local port 8080 to container port 7080
-```
-
-### Volume Mount Issues
-
-If you encounter permission issues with volume mounts, ensure:
-
-- The project directory is readable/writable
-- SELinux contexts are properly set (the `:Z` flag should handle this)
-
-### Container Build Fails
-
-- Ensure you're running the build command from the project root directory
-- Check that Podman/Docker is properly installed and running
-- Verify internet connectivity for downloading dependencies
+- **nREPL server** on port 7888 for interactive development
+- **MCP SSE endpoint** at `http://localhost:7080/sse` for Claude Desktop
+- **Real-time logs** displayed in the container output
 
 ## Claude Desktop Integration
 
-To connect Claude Desktop to your running development environment, you'll need to configure the MCP server in Claude Desktop's configuration file.
+### Configuration
 
-### Claude Desktop Configuration
+Add this configuration to your `claude_desktop_config.json`:
 
-Create or update your `claude_desktop_config.json` file with the following configuration:
-
-Non-Windows
+**Non-Windows:**
 
 ```json
 {
     "mcpServers": {
-        "clojure-mcp-proxy-in-cont": {
+        "clojure-mcp-container-proxy": {
             "command": "bash",
             "args": [
                 "-c",
@@ -139,12 +105,12 @@ Non-Windows
 }
 ```
 
-Windows via WSL
+**Windows via WSL:**
 
 ```json
 {
     "mcpServers": {
-        "clojure-mcp-proxy-in-cont": {
+        "clojure-mcp-container-proxy": {
             "command": "wsl.exe",
             "args": [
                 "bash",
@@ -156,47 +122,123 @@ Windows via WSL
 }
 ```
 
-### Configuration Details
-
-- **Server Name**: `clojure-mcp-proxy-in-cont` - This is the identifier for your MCP server
-- **Command**: `wsl.exe` - Uses Windows Subsystem for Linux to execute the proxy command
-- **Args**: Runs the `mcp-proxy` tool that connects to the SSE endpoint at `http://localhost:7080/sse`
-- **Path**: `/home/stoating/.local/bin/mcp-proxy` - The location where `uv` installs the mcp-proxy tool
-
-### Prerequisites for Claude Desktop Integration
-
-1. **WSL2** must be installed and configured on your Windows system
-2. **uv package manager** must be installed in your WSL environment
-3. **mcp-proxy** must be installed (recommended via uv): `uv tool install mcp-proxy`
-4. The **development container must be running** on port 7080
-
-### Configuration File Location
-
-The `claude_desktop_config.json` file should be placed in Claude Desktop's configuration directory:
+### Configuration File Locations
 
 - **Windows**: `%APPDATA%\Roaming\Claude\claude_desktop_config.json`
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-### Verifying the Connection
+### Prerequisites for Integration
 
-Once configured and with the development environment running:
+1. **mcp-proxy** installed (recommended via uv): `uv tool install mcp-proxy`
+2. **WSL2** (Windows only) properly configured
+3. **Container running** on port 7080
+
+### Testing the Integration
+
+Once configured:
 
 1. Restart Claude Desktop
 2. The MCP server should appear in Claude's available tools
-3. You can interact with the Clojure REPL through Claude's interface
+3. Test by asking Claude to use the greeting or math functions
 
-### Troubleshooting Claude Desktop Integration
+## Container Details
 
-#### MCP Server Not Appearing
+### What Happens During Startup
 
-- Verify the development container is running on port 7080
-- Check that WSL can access `localhost:7080` from within the WSL environment
-- Ensure `mcp-proxy` is installed and accessible at the specified path
-- Restart Claude Desktop after configuration changes. In Windows, you may need to stop Claude Desktop from the Task Manager.
+The container entrypoint script (`devenv/entrypoint.sh`):
 
-#### Connection Errors
+1. **Creates log directory** and prepares log files
+2. **Starts nREPL server** on port 7888 with CIDER middleware
+3. **Starts MCP SSE proxy** on port 7080 bridging to the Clojure MCP stdio interface
+4. **Tails logs** to display real-time output from both services
 
-- Verify the SSE endpoint is accessible: `curl http://localhost:7080/sse` from WSL
-- Check firewall settings aren't blocking port 7080
-- Ensure the container is exposing port 7080 correctly
+### Container Configuration
+
+The container (`devenv/container/Containerfile`):
+
+- Uses official Clojure tools-deps image with Temurin JDK 21
+- Installs `uv` package manager
+- Installs `mcp-proxy` tool via uv
+- Exposes port 7080 for HTTP SSE communication
+
+### Logs
+
+Development logs are stored in `.logs/`:
+
+- `nrepl.out` - nREPL server output and errors
+- `mcp-sse.out` - MCP SSE proxy output and errors
+
+## Managing the Container
+
+### Stop the Container
+
+```bash
+podman stop clojure-mcp-container-proxy
+```
+
+Or press `Ctrl+C` in the terminal where it's running.
+
+### Rebuild After Changes
+
+```bash
+# Rebuild image after modifying container configuration
+./devenv/container/image-build.sh
+
+# Restart with new image
+./devenv/container/run-container.sh
+```
+
+## Troubleshooting
+
+### Port Conflicts
+
+**Port 7080 already in use:**
+
+```bash
+# Find and kill the process using port 7080
+lsof -i :7080
+kill <PID>
+```
+
+### Connection Issues
+
+**MCP server not appearing in Claude Desktop:**
+
+- Verify container is running: `podman ps`
+- Check SSE endpoint: `curl http://localhost:7080/sse`
+- Ensure `mcp-proxy` is installed and accessible
+- Restart Claude Desktop (try View -> Reload or even restart the app (end Task from Task Manager)) after configuration changes
+
+**nREPL connection failures:**
+
+- Check if port 7888 is accessible: `nc -z localhost 7888`
+- Verify container port mapping in `run-container.sh`
+- Check nREPL logs in `.logs/nrepl.out`
+
+### Container Issues
+
+**Build failures:**
+
+- Ensure you're in the project root directory
+- Verify Podman/Docker is running
+- Check internet connectivity for dependency downloads
+
+**Permission issues:**
+
+- Ensure project directory is readable/writable
+- On SELinux systems, the `:Z` flag should handle context labeling
+
+### Development Issues
+
+**Code changes not reflecting:**
+
+- Restart the container after modifying Clojure code
+- For interactive development, use nREPL to reload namespaces
+- Check that files are properly mounted in the container
+
+**MCP functions not available:**
+
+- Verify the MCP server started successfully in logs
+- Check `mcp-sse.out` for any startup errors
+- Ensure the clojure-mcp dependency is properly resolved
