@@ -23,14 +23,15 @@ Based on practical experience, running the SSE proxy inside the container (`patt
 
 ### 🔗 Multiple Client Connections
 
-The container proxy pattern supports **multiple simultaneous client connections** to the same REPL environment. All of these clients can run at the same time, communicating on the same port and using the same shared REPL inside the container:
+The container proxy pattern supports **multiple simultaneous client connections** to the same REPL environment. All of these clients can run at the same time, communicating on the same port (7080) and using the same shared REPL inside the container:
 
-- **Copilot Chat**: Generate in devenv shell with `copilot`
-- **Codex in VSCode**: Set up with `codex-conf`
-- **Claude Code**: Configured in `.mcp.json`
-- **Codex CLI**: Configured in `.codex/config.toml`
+- **Claude Desktop**: Generated with `claude-std` (Linux/macOS) or `claude-win` (Windows)
+- **Claude Code**: Pre-configured in `.mcp.json`
+- **GitHub Copilot Chat**: Generated with `copilot`
+- **Codex in VSCode**: Generated with `codex-conf`
+- **Codex CLI**: Generated with `codex-conf` (config placed in `.codex/config.toml`)
 
-This multi-client architecture shows how you can seamlessly switch between different AI assistants and development tools while maintaining a consistent development environment. You can even have multiple instances of the same client (e.g., multiple Copilot Chat windows) connected simultaneously.
+This multi-client architecture allows you to seamlessly switch between different AI assistants and development tools while maintaining a consistent development environment.
 
 ## 🚀 Three Command Startup
 
@@ -56,7 +57,7 @@ This installs **devenv** and enters the development shell with all dependencies 
 
 ```bash
 # For Linux/macOS:
-bridge && claude && start
+bridge && claude-std && start
 
 # For Windows:
 bridge && claude-win && start
@@ -64,14 +65,25 @@ bridge && claude-win && start
 
 This command chain:
 
-- Generates the **MCP bridge script**
-- Creates your **Claude Desktop configuration** (platform-specific)
-- **Automatically copies the config** to your OS-specific Claude Desktop directory (with backup of existing config)
-- **Starts the development containers**
+- **`bridge`** - Generates the **MCP bridge script** for host-proxy pattern
+- **`claude-std`/`claude-win`** - Creates your **Claude Desktop configuration** (platform-specific) and automatically copies it to your OS-specific Claude Desktop directory (with backup of existing config)
+- **`start`** - **Starts all development containers** (container-proxy, host-proxy, direct patterns)
 
 ### 4. Final Step
 
-**Restart Claude Desktop** (or use View → Reload) - you'll now have Clojure MCP tools available!
+**Restart Claude Desktop** (or use View → Reload) - you'll now have multiple Clojure MCP servers available!
+
+### 5. Optional: Setup Additional AI Tools
+
+```bash
+# Setup GitHub Copilot Chat (creates .vscode/mcp.json)
+copilot
+
+# Setup Codex in VSCode and CLI (creates ~/.codex/config.toml)
+codex-conf
+```
+
+These commands generate configurations for additional AI tools that can connect to the same running REPL environment.
 
 ---
 
@@ -123,8 +135,8 @@ This command chain:
 7. **Generate Claude Desktop configuration (choose one):**
 
    ```bash
-   claude     # For Linux/macOS (recommended for Linux/macOS)
-   claude-win # For Windows (recommended for Windows)
+   claude-std     # For Linux/macOS
+   claude-win     # For Windows
    ```
 
 8. **These commands will copy the generated `claude_desktop_config.json` to Claude Desktop's config directory:**
@@ -160,9 +172,9 @@ Claude Desktop → podman exec → Container (Clojure MCP)
 Claude Desktop → mcp-proxy client → HTTP/SSE → Container (mcp-proxy server + Clojure MCP)
 ```
 
-- **Pros**: Platform-agnostic HTTP communication, self-contained
+- **Pros**: Platform-agnostic HTTP communication, self-contained, supports multiple clients
 - **Cons**: Slightly more complex container setup
-- **Best for**: Cross-platform compatibility, production-like environments
+- **Best for**: Cross-platform compatibility, production-like environments, multi-client development
 
 ### Pattern 3: Host Proxy (`patterns/host-proxy`)
 
@@ -191,17 +203,30 @@ Claude Desktop → mcp-proxy client → HTTP/SSE → VM (mcp-proxy server + Cloj
 │   ├── 01-install-nix.sh
 │   └── 02-install-devenv.sh
 ├── bin/                      # Utility scripts
-│   ├── claude.sh             # Generate Claude Desktop configs
-│   ├── claude-win.sh         # Windows-specific Claude configs
-│   ├── copy-claude-config.sh # Copy config to OS location with backup
+│   ├── claude.sh             # Generate Claude Desktop configs (Linux/macOS)
+│   ├── claude-win.sh         # Generate Claude Desktop configs (Windows)
+│   ├── copilot.sh            # Generate GitHub Copilot Chat config
+│   ├── codex.sh              # Generate Codex configs
+│   ├── copy-claude-config.sh # Copy Claude config to OS location with backup
+│   ├── copy-copilot-config.sh # Copy Copilot config to .vscode/
+│   ├── copy-codex-config.sh  # Copy Codex config to ~/.codex/
 │   ├── gen-bridge.sh         # Generate MCP bridge scripts
 │   ├── containers-*.sh       # Container management scripts
 │   └── images-*.sh           # Image management scripts
+├── devenv/                   # Top-level container for development
+│   └── container/            # Container configuration
+├── gen/                      # Generated configuration files
+│   ├── claude_desktop_config.json # Generated Claude Desktop config
+│   ├── config.toml           # Generated Codex config
+│   └── mcp.json              # Generated Copilot config
 ├── patterns/                 # Four different connection patterns
 │   ├── direct/               # Direct container connection (no proxy)
-│   ├── container-proxy/      # Proxy inside container
+│   ├── container-proxy/      # Proxy inside container (recommended)
 │   ├── host-proxy/           # Proxy on host system
 │   └── vm-proxy/             # VM-based setup with proxy
+├── .mcp.json                 # Claude Code configuration (pre-configured)
+├── .codex/                   # Codex CLI configuration directory
+│   └── config.toml           # Codex CLI configuration
 ├── devenv.nix                # Development environment configuration
 └── deps.edn                  # Clojure dependencies and aliases
 ```
@@ -214,27 +239,30 @@ Claude Desktop → mcp-proxy client → HTTP/SSE → VM (mcp-proxy server + Cloj
 - **Container Support**: Podman/Docker integration (available by default in devenv shell)
 - **Python Tools**: Pre-configured `mcp-proxy` and dependencies (available by default in devenv shell)
 - **Clojure Tools**: Complete Clojure development stack (available by default in devenv shell)
+- **AI Tool Integration**: Claude Code (v1.0.94) and Codex (v0.29.0) pre-installed
 
 ### MCP Integration
 
-- **clojure-mcp**: Direct REPL integration with Claude
+- **clojure-mcp**: Direct REPL integration with Claude (v0.1.8-alpha)
 - **Multi-pattern**: Four different connection architectures
-- **Cross-platform**: Windows, macOS, and Linux support (help us test and improve!)
+- **Multi-client**: Supports Claude Desktop, Claude Code, GitHub Copilot, and Codex simultaneously
+- **Cross-platform**: Windows (with WSL), macOS, and Linux support
 - **Logging**: Comprehensive logging for debugging
 
 ### Container Features
 
 - **Clojure 1.12.1**: Latest stable Clojure version
-- **nREPL**: Interactive development server
+- **nREPL**: Interactive development server on port 7888
 - **Volume Mounts**: Live code editing with isolation
-- **Port Forwarding**: HTTP/SSE communication
+- **Port Forwarding**: HTTP/SSE communication on port 7080
+- **Multiple Patterns**: All patterns can run simultaneously
 
 ## 🎨 Example Usage
 
-Once connected, you can interact with your Clojure codebase through Claude Desktop:
+Once connected, you can interact with your Clojure codebase through any of the connected AI tools:
 
 ```clojure
-;; Claude can execute Clojure code in your development environment
+;; Execute Clojure code in your development environment
 (+ 1 2 3)
 ; => 6
 
@@ -257,13 +285,15 @@ The devenv shell provides convenient scripts for seamless setup:
 
 ### Setup Commands
 
-- `bridge` - Generate MCP bridge configuration
-- `claude` - Generate Claude Desktop config (Linux/macOS) and copy to system location
+- `bridge` - Generate MCP bridge configuration for host-proxy pattern
+- `claude-std` - Generate Claude Desktop config (Linux/macOS) and copy to system location
 - `claude-win` - Generate Claude Desktop config (Windows) and copy to system location
+- `copilot` - Generate GitHub Copilot Chat config and copy to `.vscode/mcp.json`
+- `codex-conf` - Generate Codex configs and copy to `~/.codex/config.toml`
 
 ### Environment Management
 
-- `start` - Start all development containers
+- `start` - Start all development containers (container-proxy, host-proxy, direct patterns)
 - `stop` - Stop all running containers
 - `remove` - Remove containers and images
 
@@ -271,6 +301,34 @@ The devenv shell provides convenient scripts for seamless setup:
 
 - `dev-*` - Development versions of the above commands (including high-level mcp development)
 - `claude-*-vm` - Generate Claude Desktop config with VM support and copy to system location
+
+### Pre-configured Files
+
+- `.mcp.json` - Claude Code configuration (ready to use)
+- `.codex/config.toml` - Codex CLI configuration (updated by `codex-conf`)
+
+## 🧑‍💻 Multiple AI Tool Integration
+
+This setup supports **simultaneous connections** from multiple AI development tools:
+
+### Claude Desktop
+
+Primary integration with comprehensive MCP server configuration including all patterns.
+
+### Claude Code
+
+Pre-configured via `.mcp.json` at the project root. Connects to the container-proxy on port 7080.
+
+### GitHub Copilot Chat
+
+Generate configuration with `copilot` command. Creates `.vscode/mcp.json` for VS Code integration.
+
+### Codex (OpenAI)
+
+- **VSCode Extension**: Configured via `codex-conf` command
+- **CLI Tool**: Also configured via `codex-conf`, placed in `~/.codex/config.toml`
+
+All tools connect to the same running Clojure REPL environment, allowing you to seamlessly switch between different AI assistants while maintaining consistent state.
 
 ## 🐛 Troubleshooting
 
@@ -291,11 +349,40 @@ The devenv shell provides convenient scripts for seamless setup:
 
    ```bash
    # Test container-based MCP
-   podman exec -it <container-name> clojure -X:mcp
+   podman exec -it clojure-mcp-container-proxy clojure -X:mcp
 
    # Test HTTP endpoint (for proxy patterns)
    curl http://localhost:7080/status
    ```
+
+### Port Conflicts
+
+If port 7080 is already in use:
+
+```bash
+# Find the process using port 7080
+lsof -i :7080
+
+# Kill the process
+kill <PID>
+```
+
+### Container Issues
+
+```bash
+# Check container logs
+podman logs clojure-mcp-container-proxy
+
+# Restart containers
+stop && start
+```
+
+### Multiple AI Tools Not Working
+
+1. Ensure containers are running: `podman ps`
+2. Test the SSE endpoint: `curl http://localhost:7080/sse`
+3. Check tool-specific configuration files in `gen/` directory
+4. Restart the respective AI tools after configuration changes
 
 ## 📚 Learning Resources
 
@@ -303,6 +390,7 @@ The devenv shell provides convenient scripts for seamless setup:
 - **[clojure-mcp](https://github.com/bhauman/clojure-mcp)** - Clojure MCP implementation
 - **[devenv](https://devenv.sh/)** - Development environment management
 - **[Claude Desktop](https://claude.ai/desktop)** - AI assistant with MCP support
+- **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)** - Command line tool for agentic coding
 
 ## 🤝 Contributing
 
@@ -311,6 +399,7 @@ This project is designed to be educational and easily reproducible. Contribution
 - **Cross-platform testing** (especially macOS)
 - **Documentation clarity**
 - **New connection patterns**
+- **Additional AI tool integrations**
 - **Troubleshooting guides**
 - **Performance optimizations**
 
@@ -322,4 +411,4 @@ Special thanks to **Bruce Hauman** for creating the excellent [clojure-mcp](http
 
 The configurations in this repository, especially the logging setup, general structure, and scripts, are inspired by the comprehensive guide in the [clojure-mcp wiki: Running MCP and nREPL server in a container](https://github.com/bhauman/clojure-mcp/wiki/Running-MCP-and-nREPL-server-in-a-container).
 
-## Happy coding with Claude and Clojure! 🎉
+## Happy coding with Claude (or CoPilot or Codex) and Clojure! 🎉
