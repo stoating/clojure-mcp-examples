@@ -1,131 +1,174 @@
-# VM Development Environment
+# VM Proxy Pattern
 
-This directory contains the VM-based development environment for the Clojure MCP project.
+This directory contains the VM-based deployment pattern for the Clojure MCP project. This pattern runs the complete development stack inside a virtual machine, with Claude Desktop connecting from the host system via an HTTP SSE proxy.
 
 ## Architecture Overview
 
-This setup provides a virtualized Clojure development environment where:
+This setup provides a virtualized Clojure development environment with these components:
 
-- **Virtual Machine**: Runs the complete development stack (containers, Clojure application, MCP server)
-- **Host System**: Runs Claude Desktop which connects to the VM
-- **Container Inside VM**: Runs the Clojure application and MCP SSE proxy server
-- **Claude Desktop**: Connects to the VM's exposed SSE endpoint
+- **Virtual Machine**: Contains the complete development environment (Clojure, nREPL, MCP server)
+- **Host System**: Runs Claude Desktop which connects to the VM's exposed port
+- **MCP SSE Proxy**: Bridges Claude Desktop's SSE client to the Clojure MCP stdio interface
+- **Claude Desktop**: Connects to the VM's HTTP SSE endpoint for MCP communication
+
+## When to Use This Pattern
+
+### ✅ Ideal For
+
+- **Team Development**: Ensures identical environments across all team members
+- **Sandboxed Development**: Complete isolation from host system
+- **Production-like Testing**: VM mimics server deployment environments
+- **Resource Isolation**: Dedicated VM resources prevent conflicts with host applications
+- **Security-sensitive Projects**: Additional isolation layer for experimental or sensitive development
+- **Backup/Distribution**: Entire development environment can be snapshotted and shared
+
+### ⚠️ Consider Alternatives If
+
+- **Limited Resources**: VM requires significant RAM and storage
+- **Performance Critical**: Virtualization adds overhead compared to other patterns
+- **Simple Projects**: Container patterns are simpler for development
+- **Network Restrictions**: Additional network complexity (host ↔ VM ↔ services)
 
 ## Prerequisites
 
-- **Virtual Machine Software** (VirtualBox, VMware, Hyper-V, etc.)
-- **Linux VM** set up with:
-  - **Nix** and **devenv** installed (via bootstrap scripts)
-  - **Podman** or **Docker** for containerization
-- **Claude Desktop** on your host system (for MCP integration)
+### Virtual Machine Requirements
 
-## VM Setup Process
+- **Hypervisor**: VirtualBox, VMware, Hyper-V, or similar
+- **Guest OS**: Linux distribution (Ubuntu 20.04+, Fedora 35+, etc.)
+- **Resources**:
+  - 4GB RAM minimum (8GB recommended)
+  - 20GB+ disk space
+  - Network access (NAT or Bridged networking)
+- **Port Forwarding**: VM port 7080 → Host port 7080
 
-### 1. Create and Configure Your Virtual Machine
+### Host System Requirements
 
-Set up a Linux virtual machine (Ubuntu, Fedora, etc.) with:
+- **Claude Desktop**: Installed and configured
+- **mcp-proxy tool**: Install via `uv tool install mcp-proxy` (requires Python and uv)
+- **Network Access**: Ability to connect to VM's forwarded port
 
-- At least 4GB RAM (8GB recommended)
-- 20GB+ disk space
-- Network access (NAT or Bridged)
-- Port forwarding for port 7082 (VM → Host)
+### Detailed VM Setup
 
-**Note**: For detailed VM setup instructions, refer to the video guide at: [nixos - setup virtual machine](https://youtu.be/8CXBBitdjBU)
+For comprehensive VM setup instructions, see: [NixOS - Setup Virtual Machine](https://youtu.be/8CXBBitdjBU)
 
-### 2. Install Development Environment in VM
+## VM Environment Setup
 
-Inside your VM, clone and set up the project:
+### 1. Initial VM Configuration
+
+After creating your Linux VM, clone and set up the project:
 
 ```bash
 # Clone the repository
 git clone <repository-url>
 cd clojure-mcp-examples
 
-# Install Nix
-./bootstrap/01-install-nix.sh
+# Install Nix (if not already installed)
+../../bootstrap/01-install-nix.sh
 
-# Close terminal and open new terminal
+# Close terminal and open new terminal session
 
 # Install devenv
-./bootstrap/02-install-devenv.sh
+../../bootstrap/02-install-devenv.sh
 
 # Enter development environment
 devenv shell
 ```
 
-### 3. Container Setup Inside VM
+### 2. Start the Development Environment
 
-The development environment runs containers inside the VM:
-
-#### Building the Image
+From within the VM, in the `patterns/vm-proxy` directory:
 
 ```bash
-# From within the devenv shell in the VM
-podman build -t clojure-mcp-vm-proxy-image devenv/container/
+# Start the development services
+bash devenv/entrypoint.sh
 ```
 
-This creates a container with:
+This script will:
 
-- Official Clojure tools-deps image with Temurin JDK 21
-- Required dependencies (curl, ca-certificates)
-- `uv` package manager and `mcp-proxy` tool
-- Working directory at `/usr/app`
-- Exposed port 7082 for the MCP SSE server
+1. Create and prepare log directories
+2. Start nREPL server on port 7888 (VM internal)
+3. Start MCP SSE proxy on port 7080 (exposed to host)
+4. Display real-time logs from both services
 
-#### Running the Container
+### 3. Manual Startup (Alternative)
+
+You can also start services manually for debugging:
 
 ```bash
-# Start the development environment
-start  # This uses the devenv script to start containers
+# Terminal 1: Start nREPL
+clojure -M:mcp-nrepl
+
+# Terminal 2: Start MCP proxy (after nREPL is running)
+mcp-proxy --host=0.0.0.0 --port=7080 -- clojure -X:mcp
 ```
-
-The container startup process:
-
-1. **Set up logging**: Create `.logs` directory and prepare log files
-2. **Start nREPL server**: Launch Clojure REPL server for development
-3. **Start MCP SSE proxy**: Launch MCP proxy on port 7082 (VM-specific port)
-4. **Tail logs**: Display real-time logs from both services
-
-## What's Running
-
-Once started, your VM provides:
-
-- **Clojure development environment** via nREPL (port 7888)
-- **HTTP SSE endpoint** at `http://localhost:7082` for MCP communication
-- **Real-time log monitoring** for debugging
-- **Complete isolation** from host system
-
-## Logs
-
-Development logs are stored in the `.logs` directory within the VM:
-
-- `nrepl.out` - nREPL server logs
-- `mcp-sse.out` - MCP SSE proxy logs
 
 ## VM Port Configuration
 
-Ensure your VM is configured to forward port 7082:
+Ensure your VM is configured to forward port 7080:
 
-- **VM Port**: 7082 (internal container port)
-- **Host Port**: 7082 (accessible from host system)
-- **Protocol**: TCP
+### VirtualBox Example
 
-## Claude Desktop Integration (Host System)
+1. VM Settings → Network → Advanced → Port Forwarding
+2. Add rule: Host Port `7080` → Guest Port `7080`
+3. Protocol: TCP
 
-Configure Claude Desktop on your host system to connect to the VM:
+### VMware Example
 
-### Claude Desktop Configuration
+1. VM Settings → Network Adapter → NAT → Advanced
+2. Add Port Forwarding: Host Port `7080` → Guest Port `7080`
+
+### Testing Port Access
+
+From your host system:
+
+```bash
+curl http://localhost:7080/status
+```
+
+## Project Structure
+
+```bash
+patterns/vm-proxy/
+├── README.md              # This documentation
+├── deps.edn              # Clojure dependencies and aliases
+├── devenv/
+│   └── entrypoint.sh     # VM service startup script
+└── src/
+    └── mcp/
+        └── mcp.clj       # Example MCP service functions
+```
+
+## Configuration Details
+
+### deps.edn
+
+- **:mcp-nrepl**: Starts nREPL with CIDER middleware on port 7888
+- **:mcp**: Runs the MCP server connecting to nREPL
+
+### Clojure MCP Functions
+
+The `src/mcp/mcp.clj` file contains example functions:
+
+- `greet`: Simple greeting function with optional name parameter
+- `plus-two`: Mathematical function demonstrating parameter handling
+- `-main`: Command-line entry point demonstrating function usage
+
+## Claude Desktop Integration
+
+### Host System Configuration
+
+Add this configuration to your Claude Desktop config file:
 
 #### Linux/macOS Host
 
 ```json
 {
   "mcpServers": {
-    "clojure-mcp-vm-proxy-in-vm": {
+    "clojure-mcp-vm-proxy": {
       "command": "bash",
       "args": [
         "-c",
-        "mcp-proxy http://localhost:7082/sse"
+        "mcp-proxy http://localhost:7080/sse"
       ]
     }
   }
@@ -137,61 +180,100 @@ Configure Claude Desktop on your host system to connect to the VM:
 ```json
 {
   "mcpServers": {
-    "clojure-mcp-vm-proxy-in-vm": {
+    "clojure-mcp-vm-proxy": {
       "command": "cmd",
       "args": [
         "/c",
-        "mcp-proxy http://localhost:7082/sse"
+        "mcp-proxy http://localhost:7080/sse"
       ]
     }
   }
 }
 ```
 
-### Configuration Requirements
-
-1. **mcp-proxy** must be installed on your host system:
-   - Install via `uv tool install mcp-proxy` (requires Python and uv)
-   - Or use your system's package manager
-2. **VM must be running** with containers started
-3. **Port 7082 must be forwarded** from VM to host
-4. **Network connectivity** between host and VM
-
-### Configuration File Location
-
-Place `claude_desktop_config.json` in Claude Desktop's configuration directory:
+### Configuration File Locations
 
 - **Windows**: `%APPDATA%\Roaming\Claude\claude_desktop_config.json`
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-## Advantages of VM-Based Setup
+### Prerequisites for Integration
 
-### ✅ Pros
+1. **mcp-proxy installed on host**: `uv tool install mcp-proxy`
+2. **VM running with services started**
+3. **Port 7080 forwarded** from VM to host
+4. **Network connectivity** between host and VM
 
-- **Complete Isolation**: Full separation between development environment and host
-- **Reproducible**: Entire VM can be cloned, backed up, or distributed
-- **Team Consistency**: Same VM image ensures identical environments across team members
-- **Resource Control**: Dedicated VM resources prevent conflicts with host system
-- **Security**: Sandboxed environment for experimental or sensitive development
+## Development Workflow
 
-### ⚠️ Cons
+### Starting Development
 
-- **Resource Overhead**: VM requires dedicated RAM and CPU resources
-- **Network Complexity**: Additional network layer (host ↔ VM ↔ container)
-- **Performance**: Slight performance penalty due to virtualization layer
-- **Storage**: VM disk images can be large (10GB+)
+1. **Start VM** and log in
+2. **Navigate** to project directory
+3. **Run services**: `bash devenv/entrypoint.sh`
+4. **Verify connection** from host: `curl http://localhost:7080/status`
+5. **Restart Claude Desktop** to pick up MCP server
+
+### Development Cycle
+
+1. **Modify Clojure code** in `src/mcp/mcp.clj`
+2. **Connect to nREPL** for interactive development (port 7888)
+3. **Test functions** via Claude Desktop MCP interface
+4. **Monitor logs** in `.logs/` directory
+
+### Logs and Monitoring
+
+Development logs are stored in the VM at `.logs/`:
+
+- `nrepl.out` - nREPL server output and errors
+- `mcp-sse.out` - MCP SSE proxy output and errors
+
+View logs in real-time:
+
+```bash
+tail -f .logs/nrepl.out .logs/mcp-sse.out
+```
 
 ## Troubleshooting
 
+### VM Connectivity Issues
+
+**Port forwarding not working:**
+
+```bash
+# From host system
+telnet localhost 7080
+
+# From inside VM
+netstat -ln | grep 7080
+```
+
+**Services not starting:**
+
+```bash
+# Check nREPL
+lsof -i :7888
+
+# Check proxy
+lsof -i :7080
+
+# View service logs
+cat .logs/nrepl.out
+cat .logs/mcp-sse.out
+```
+
 ### Claude Desktop Connection
 
-1. **MCP server not appearing**:
-   - Verify mcp-proxy is installed on host
-   - Check port 7082 is accessible from host: `curl http://localhost:7082/status`
-   - Restart Claude Desktop after configuration changes
+**MCP server not appearing:**
 
-2. **Connection timeouts**:
-   - Check VM is running and containers are started
-   - Verify firewall settings aren't blocking port 7082
-   - Test SSE endpoint: `curl http://localhost:7082/sse`
+1. Verify mcp-proxy is installed: `which mcp-proxy`
+2. Test SSE endpoint: `curl http://localhost:7080/sse`
+3. Check Claude Desktop logs
+4. Restart Claude Desktop completely
+
+**Connection timeouts:**
+
+1. Verify VM services are running
+2. Check firewall settings on host and VM
+3. Test basic connectivity: `ping <vm-ip>`
+4. Verify port forwarding configuration
