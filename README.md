@@ -21,6 +21,17 @@ One particularly interesting aspect of this containerized approach is that you c
 
 Based on practical experience, running the SSE proxy inside the container (`patterns/container-proxy`) tends to provide the smoothest workflow. This approach keeps Claude's responsibility minimal - simply pointing Claude to a ready endpoint that's prepared for immediate interaction. The container handles all the complexity internally, presenting Claude with a clean, standardized HTTP/SSE interface.
 
+### 🔗 Multiple Client Connections
+
+The container proxy pattern supports **multiple simultaneous client connections** to the same REPL environment. All of these clients can run at the same time, communicating on the same port and using the same shared REPL inside the container:
+
+- **Copilot Chat**: Generate in devenv shell with `copilot`
+- **Codex in VSCode**: Set up with `codex-conf`
+- **Claude Code**: Configured in `.mcp.json`
+- **Codex CLI**: Configured in `.codex/config.toml`
+
+This multi-client architecture shows how you can seamlessly switch between different AI assistants and development tools while maintaining a consistent development environment. You can even have multiple instances of the same client (e.g., multiple Copilot Chat windows) connected simultaneously.
+
 ## 🚀 Three Command Startup
 
 Get up and running with Claude + Clojure in just **three commands**:
