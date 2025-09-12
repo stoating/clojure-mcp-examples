@@ -2,6 +2,8 @@
 
 A containerized Clojure development environment that provides MCP (Model Context Protocol) server functionality for seamless integration with Claude Desktop through direct container communication.
 
+For a walkthrough video, see: [YouTube - model context protocol - clojure mcp examples with multiple clients](https://youtu.be/Cc1A8eKUs7k)
+
 ## Overview
 
 This project demonstrates how to create a Clojure-based MCP server that runs in a containerized development environment with direct integration to Claude Desktop. The setup includes:

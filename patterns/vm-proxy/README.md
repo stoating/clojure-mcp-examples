@@ -2,6 +2,8 @@
 
 This directory contains the VM-based deployment pattern for the Clojure MCP project. This pattern runs the complete development stack inside a virtual machine, with Claude Desktop connecting from the host system via an HTTP SSE proxy.
 
+For a walkthrough video, see: [YouTube - model context protocol - clojure mcp examples with multiple clients](https://youtu.be/Cc1A8eKUs7k)
+
 ## Architecture Overview
 
 This setup provides a virtualized Clojure development environment with these components:

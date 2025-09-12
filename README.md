@@ -2,6 +2,8 @@
 
 A comprehensive demonstration of different architectural patterns for connecting your LLM (especially Claude Desktop) with Clojure codebases using the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This project showcases multiple patterns for integrating Claude Desktop with Clojure development environments.
 
+For a walkthrough video, see: [YouTube - model context protocol - clojure mcp examples with multiple clients](https://youtu.be/Cc1A8eKUs7k)
+
 ## 🎯 Project Overview
 
 This repository demonstrates **four different connection patterns** for integrating Claude Desktop with Clojure development environments:

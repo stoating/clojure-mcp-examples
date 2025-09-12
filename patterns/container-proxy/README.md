@@ -2,6 +2,8 @@
 
 A containerized Clojure development environment that provides MCP (Model Context Protocol) server functionality with HTTP SSE (Server-Sent Events) proxy support for integration with Claude Desktop.
 
+For a walkthrough video, see: [YouTube - model context protocol - clojure mcp examples with multiple clients](https://youtu.be/Cc1A8eKUs7k)
+
 ## Overview
 
 This project demonstrates how to create a Clojure-based MCP server that runs in a container and exposes its functionality through an HTTP SSE endpoint. The setup includes:
